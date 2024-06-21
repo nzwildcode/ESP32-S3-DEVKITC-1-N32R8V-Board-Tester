@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Relay Control</title>
+  <link rel="stylesheet" type="text/css" href="style.css">
+  <script>
+    function toggleTimer() {
+      var xhr = new XMLHttpRequest();
+      xhr.onreadystatechange = function() {
+        if (xhr.readyState === XMLHttpRequest.DONE) {
+          if (xhr.status === 200) {
+            updateTimerState();
+          }
+        }
+      };
+      xhr.open("POST", "/toggleTimer", true);
+      xhr.send();
+    }
+
+    function updateTimerValues() {
+      var xhr = new XMLHttpRequest();
+      xhr.onreadystatechange = function() {
+        if (xhr.readyState === XMLHttpRequest.DONE) {
+          if (xhr.status === 200) {
+            var response = JSON.parse(xhr.responseText);
+            document.getElementById("relay_on").value = response.relayOnTimer;
+            document.getElementById("relay_off").value = response.relayOffTimer;
+          }
+        }
+      };
+      xhr.open("GET", "/getTimerValues", true);
+      xhr.send();
+    }
+
+    function updateTimerState() {
+      var xhr = new XMLHttpRequest();
+      xhr.onreadystatechange = function() {
+        if (xhr.readyState === XMLHttpRequest.DONE) {
+          if (xhr.status === 200) {
+            var response = JSON.parse(xhr.responseText);
+            var button = document.getElementById("timerButton");
+            if (response.timerRunning) {
+              button.value = "Stop Timer";
+            } else {
+              button.value = "Start Timer";
+            }
+          }
+        }
+      };
+      xhr.open("GET", "/getTimerState", true);
+      xhr.send();
+    }
+
+    // Call updateTimerValues() and updateTimerState() when the page loads
+    window.onload = function() {
+      updateTimerValues();
+      updateTimerState();
+    };
+  </script>
+</head>
+<body>
+  <div class="container">
+    <h1>Relay Control</h1>
+    <form action="/setTimers" method="post">
+      <div class="form-group">
+        <label for="relay_on">On Time (seconds):</label>
+        <input type="number" id="relay_on" name="relay_on" value="0">
+      </div>
+      <div class="form-group">
+        <label for="relay_off">Off Time (seconds):</label>
+        <input type="number" id="relay_off" name="relay_off" value="0">
+      </div>
+      <div class="form-group">
+        <input type="submit" value="Set Timers">
+      </div>
+    </form>
+    <div class="button-group">
+      <input type="button" id="timerButton" value="Start Timer" onclick="toggleTimer()">
+    </div>
+  </div>
+</body>
+</html>
