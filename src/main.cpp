@@ -14,10 +14,7 @@ See the readme.md file more information about this example.
 #define ENABLE_NEOPIXEL
 
 #ifdef ENABLE_NEOPIXEL
-#include <Adafruit_NeoPixel.h>
 const int neoPixelPin = 38;
-const int numPixels = 1;
-Adafruit_NeoPixel pixels(numPixels, neoPixelPin, NEO_GRB + NEO_KHZ800);
 #endif
 
 // Define the GPIO pin for the relay
@@ -50,21 +47,18 @@ void statusLEDBlinkTaskFunction(void* parameter) {
       if (relayState) {
         digitalWrite(statusLEDPin, HIGH); // Turn on the LED when the relay is on
         #ifdef ENABLE_NEOPIXEL
-        pixels.setPixelColor(0, pixels.Color(0, 255, 0)); // Set NeoPixel to green when relay is on
-        pixels.show();
+        neopixelWrite(neoPixelPin, 0, 255, 0);
         #endif
       } else {
         digitalWrite(statusLEDPin, LOW); // Turn off the LED when the relay is off
         #ifdef ENABLE_NEOPIXEL
-        pixels.setPixelColor(0, pixels.Color(255, 0, 0)); // Set NeoPixel to red when relay is off
-        pixels.show();
+        neopixelWrite(neoPixelPin, 255, 0, 0);
         #endif
       }
     } else {
       digitalWrite(statusLEDPin, LOW); // Turn off the LED when the timer is not running
       #ifdef ENABLE_NEOPIXEL
-      pixels.setPixelColor(0, pixels.Color(0, 0, 0)); // Turn off NeoPixel when timer is not running
-      pixels.show();
+      neopixelWrite(neoPixelPin, 0, 0, 0);
       #endif
     }
     vTaskDelay(pdMS_TO_TICKS(100)); // Small delay to avoid excessive loop iterations
@@ -106,11 +100,6 @@ void setup() {
   } else {
     Serial.println("PSRAM not found");
   }
-
-  // Initialize NeoPixel
-  #ifdef ENABLE_NEOPIXEL
-  pixels.begin();
-  #endif
 
   // Initialize the GPIO pins
   pinMode(relayPin, OUTPUT);
